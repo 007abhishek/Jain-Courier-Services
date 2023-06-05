@@ -133,6 +133,61 @@
         $("#myModal12").modal("show");
       });
     </script>
+
+    <style>
+      .profile-cover-containerr {
+        display: flex;
+        align-items: center;
+        /* justify-content: space-between; */
+        /* background-color: white; */
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid black;
+        width: 1000px;
+        margin-left: 15%;
+      }
+
+      .left-section {
+        width: 233px;
+        /* margin: 5% 10%; */
+        /* border: 1px solid black; */
+      }
+
+      .left-section img {
+        max-width: 100%;
+        height: auto;
+        /* border: 1px solid black; */
+        /* padding: 10px; */
+        border-radius: 100%;
+      }
+
+      .right-section {
+        margin-left: 10px;
+        margin-right: 0;
+        text-align: right;
+        width: 400px;
+      }
+      .centre-section {
+        margin-left: 10px;
+        width: 500px;
+      }
+      .vl {
+        border-left: 1px solid black;
+        height: 310px;
+      }
+      .centre-section h2 {
+        margin: 0;
+        font-size: 32px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .centre-section p {
+        margin: 0;
+        font-size: 16px;
+        color: #666;
+      }
+    </style>
   </head>
 
   <body>
@@ -234,55 +289,6 @@
       </nav>
     </section>
 
-    <style>
-      .profile-cover-containerr {
-        display: flex;
-        align-items: center;
-        /* justify-content: space-between; */
-        /* background-color: white; */
-        /* padding: 20px; */
-        border-radius: 10px;
-        border: 1px solid black;
-        width: 1000px;
-        margin-left: 15%;
-      }
-
-      .left-section {
-        width: 233px;
-        /* margin: 5% 10%; */
-        /* border: 1px solid black; */
-      }
-
-      .left-section img {
-        max-width: 100%;
-        height: auto;
-        /* border: 1px solid black; */
-        /* padding: 10px; */
-        border-radius: 100%;
-      }
-
-      .right-section {
-        margin-left: 10px;
-        width: 500px;
-      }
-      .vl {
-        border-left: 1px solid black;
-        height: 310px;
-      }
-      .right-section h2 {
-        margin: 0;
-        font-size: 32px;
-        font-weight: bold;
-        color: #333;
-      }
-
-      .right-section p {
-        margin: 0;
-        font-size: 16px;
-        color: #666;
-      }
-    </style>
-
     <section
       class="header3 cid-rRAJ0Vo8T2 mbr-fullscreen mbr-parallax-background"
       id="header3-1"
@@ -296,42 +302,40 @@
         <div class="left-section">
           <img
             style="width: 100%; border-radius: 100%"
-            src="data:image/jpeg;base64, <%= franchisee.image.data.toString('base64') %>"
+            src="data:image/jpeg;base64, <%= franchisee.profilePhoto.data.toString('base64') %>"
           />
         </div>
 
-        <div class="vl"></div>
 
-        <div class="right-section">
-          <h2 style="font-size: 48px"><%= franchisee.name %></h2>
+        <div class="centre-section">
+          <h2 style="font-size: 48px"><%= franchisee.contactPerson %></h2>
           <br />
-          <h3>Email: <%= franchisee.email %></h3>
-          <h3>Mobile: <%= franchisee.mobile %></h3>
           <h3>Address: <%= franchisee.address %></h3>
           <h3>Pincode: <%= franchisee.pincode %></h3>
+          <h3><%= franchisee.contactNo %></h3>
+          <h3><%= franchisee.email %></h3>
         </div>
-        <div class="right-section">
 
-        <a
-          class="btn btn-secondary"
-          href="bookConsignment"
-          role="button"
-          id="dropdownMenuLink"
-          aria-expanded="false"
-        >
-          Book New Consignment
-        </a>
-        <a
-          class="btn btn-secondary"
-          href="myBooking"
-          role="button"
-          id="dropdownMenuLink"
-          aria-expanded="false"
-        >
-          My Bookings
-        </a>
-      </div>
-        
+        <div class="right-section">
+          <a
+            class="btn btn-secondary"
+            href="bookConsignment"
+            role="button"
+            id="dropdownMenuLink"
+            aria-expanded="false"
+          >
+            Book New Consignment
+          </a>
+          <a
+            class="btn btn-secondary"
+            href="myBooking?id=<%=franchisee._id%>"
+            role="button"
+            id="dropdownMenuLink"
+            aria-expanded="false"
+          >
+            My Bookings
+          </a>
+        </div>
       </div>
     </section>
 

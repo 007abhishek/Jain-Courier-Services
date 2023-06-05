@@ -296,17 +296,17 @@
         <div class="left-section">
           <img
             style="width: 100%; border-radius: 100%"
-            src="data:image/jpeg;base64, <%= franchisee.image.data.toString('base64') %>"
+            src="data:image/jpeg;base64, <%= franchisee.profilePhoto.data.toString('base64') %>"
           />
         </div>
 
         <div class="vl"></div>
 
         <div class="right-section">
-          <h2 style="font-size: 48px"><%= franchisee.name %></h2>
+          <h2 style="font-size: 48px"><%= franchisee.contactPerson %></h2>
           <br />
           <h3>Email: <%= franchisee.email %></h3>
-          <h3>Mobile: <%= franchisee.mobile %></h3>
+          <h3>Mobile: <%= franchisee.contactNo %></h3>
           <h3>Address: <%= franchisee.address %></h3>
           <h3>Pincode: <%= franchisee.pincode %></h3>
         </div>

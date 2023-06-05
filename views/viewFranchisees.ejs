@@ -74,11 +74,11 @@
       <% franchisees.forEach(function(franchisee) { %>
       <tr>
         <td>
-          <img style="width: 60%; border: 2px solid #555" src="data:image/jpeg;base64, <%= franchisee.image.data.toString('base64') %>" />
+          <img style="width: 60%; border: 2px solid #555" src="data:image/jpeg;base64, <%= franchisee.profilePhoto.data.toString('base64') %>" />
         </td>
-        <td><%= franchisee.name %></td>
+        <td><%= franchisee.contactPerson %></td>
         <td><%= franchisee.pincode %></td>
-        <td><%= franchisee.mobile %></td>
+        <td><%= franchisee.contactNo %></td>
         <td><%= franchisee.email %></td>
         <td><%= franchisee.address %></td>
   

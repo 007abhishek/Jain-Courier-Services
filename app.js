@@ -41,36 +41,42 @@ mongoose.connect("mongodb://127.0.0.1:27017/CourierWebsite", {
   useNewUrlParser: true,
 });
 
-// Define the franchisee schema and model
+// Franchisee schema and model
 const franchiseeSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  pincode: { type: String, required: true },
-  mobile: { type: String, required: true },
+  profilePhoto: { data: Buffer, contentType: String },
+  contactPerson: { type: String, required: true },
+  contactNo: { type: String, required: true },
+  branchName: { type: String, required: true },
   email: { type: String, required: true,unique: true },
-  address: { type: String, required: true },
   password: { type: String, required: true },
-  image: { data: Buffer, contentType: String },
+  state: { type: String, required: true },
+  district: { type: String, required: true },
+  city: { type: String, required: true },
+  pincode: { type: String, required: true },
+  address: { type: String, required: true },
   // booked: []
 });
 
 const Franchisee = mongoose.model("Franchisee", franchiseeSchema);
 
-const bookedConsignementSchema = new mongoose.Schema({
-  trakingID: { type: String, required: true, unique: true },
-  Spincode: { type: String, required: true },
-  Rpincode: { type: String, required: true },
-  SName: { type: String, required: true },
-  RName: { type: String, required: true },
-  Smobile: { type: String, required: true },
-  Rmobile: { type: String, required: true },
-  SAddress: { type: String},
-  RAddress: { type: String, required: true },
-  Semail: { type: String},
-  Remail: { type: String},
+
+// Shipment/Tracking ID Schema
+const shipmentSchema = new mongoose.Schema({
+  trackingNumber: { type: String, required: true, unique: true },
+  senderName: { type: String, required: true },
+  senderCity: { type: String, required: true },
+  senderPincode: { type: String, required: true },
+  senderAddress: { type: String},
+  senderContactNo: { type: String, required: true },
+  ReceiverName: { type: String, required: true },
+  Receivermobile: { type: String, required: true },
+  ReceiverAddress: { type: String, required: true },
+  senderEmail: { type: String},
+  Receiveremail: { type: String},
   date: { type: Date }
 });
 
-const bookedConsignement = mongoose.model("bookedConsignement", bookedConsignementSchema);
+const Shipment = mongoose.model("Shipment", shipmentSchema);
 
 
 
@@ -78,61 +84,7 @@ app.get("/", function (req, res) {
   res.render("home");
 });
 
-app.get("/Network", function (req, res) {
-  const success = req.query.success;
-  res.render("network",{ success: success });
-});
 
-
-app.post("/network", async function (req, res) {
-  const pinCode = req.body.pinCode;
-  console.log(pinCode);
-  try {
-    const user = await Franchisee.findOne({
-      pincode: pinCode,
-    });
-    if (!user) {
-      res.redirect("/network?success=invalid");
-    } else {
-      res.redirect("/branch?pincode=" + user.pincode);
-    }
-  } catch (err) {
-    console.error("Error finding pincode or comparing pincode:", err);
-    // return res.status(500).send("Error finding user or comparing password");
-  }
-
-});
-
-app.get("/branch", async function (req, res) {
-  const pinCode = req.query.pincode;
-  console.log(pinCode);
-  try {
-    const user = await Franchisee.findOne({
-      pincode: pinCode,
-    });
-    if (!user) {
-      res.redirect("/network");
-    } else {
-      res.render("branch", { franchisee: user });
-    }
-  } catch (err) {
-    console.error("Error finding user:", err);
-    // return res.status(500).send("Error finding user");
-  }
-});
-
-
-app.get("/Service", function (req, res) {
-  res.render("service");
-});
-
-app.get("/Solution", function (req, res) {
-  res.render("solution");
-});
-
-app.get("/About", function (req, res) {
-  res.render("about");
-});
 
 app.get("/login", function (req, res) {
   const success = req.query.success;
@@ -177,9 +129,8 @@ app.get("/user", async function (req, res) {
 
 app.post("/bookConsignment", async function (req, res) {
   const currentDate = moment().tz('Asia/Kolkata').toDate();
-
   const booked = new bookedConsignement({
-    trakingID: req.body.trakingNumber,
+    trackingID: req.body.trackingNumber,
     Spincode: req.body.SPincode,
     Rpincode: req.body.RPincode,
     SName: req.body.SName,
@@ -208,35 +159,39 @@ app.get("/bookConsignment", function (req, res) {
   res.render("booking",{ success: success });
 });
 
+app.get("/myBooking", async function (req, res) {
+  console.log(req.query.id);
+  res.render("mybooking.ejs",{bookings:Franchisee});
+});
 
 
 app.post("/Track", async function (req, res) {
-    const trakingNumber = req.body.trakingNumber;
+    const trackingNumber = req.body.trackingNumber;
 
-    console.log(trakingNumber);
+    console.log(trackingNumber);
     try {
       const found = await bookedConsignement.findOne({
-      trakingID: trakingNumber
+      trackingID: trackingNumber
     });
       if (!found) {
         res.redirect("/Track?success=invalid");
       } else {
-        res.redirect("/Traking?id=" + found._id);
+        res.redirect("/Tracking?id=" + found._id);
       }
     } catch (err) {
-      console.error("Error finding traking number in database:", err);
+      console.error("Error finding tracking number in database:", err);
       // return res.status(500).send("Error finding user or comparing password");
     }
 });
 
-app.get("/Traking", async function (req, res) {
-  const trakingDBId = req.query.id;
+app.get("/Tracking", async function (req, res) {
+  const trackingDBId = req.query.id;
   try {
-    const found = await bookedConsignement.findById(trakingDBId);
+    const found = await bookedConsignement.findById(trackingDBId);
     if (!found) {
       res.redirect("/Track");
     } else {
-      res.render("Traking", { track: found });
+      res.render("Tracking", { track: found });
     }
   } catch (err) {
     console.error("Error finding user:", err);
@@ -249,9 +204,12 @@ app.get("/Track", function (req, res) {
   res.render("track",{ success: success });
 });
 
+
+
+// --------------------Admin Page Downside --------------------------------------------
+
 app.get("/admin", function (req, res) {
   const success = req.query.success;
-
   res.render("admin", { success: success });
 });
 
@@ -280,16 +238,20 @@ app.post("/addFranchisee", upload.single('image'), async function (req, res) {
     return res.status(400).send('No file uploaded');
   }
   const franchisee = new Franchisee({
-    name: req.body.name,
-    image: {
+    profilePhoto: {
       data: req.file.buffer,
       contentType: req.file.mimetype,
     },
-    pincode: req.body.pincode,
-    mobile: req.body.mobile,
+    contactPerson: req.body.contactPerson,
+    contactNo: req.body.contactNo,
+    branchName: req.body.branchName,
     email: req.body.email,
-    address: req.body.address,
     password: req.body.password,
+    state: req.body.state,
+    district: req.body.district,
+    city: req.body.city,
+    pincode: req.body.pincode,
+    address: req.body.address
   });
 
   try {
@@ -302,11 +264,6 @@ app.post("/addFranchisee", upload.single('image'), async function (req, res) {
   }
 });
 
-app.get("/myBooking", async function (req, res) {
-  res.render("mybooking.ejs",{bookings:Franchisee});
-});
-
-
 app.get("/viewFranchisees", async function (req, res) {
   try {
     const franchisees = await Franchisee.find();
@@ -315,6 +272,64 @@ app.get("/viewFranchisees", async function (req, res) {
     console.error(err);
     return res.status(500).send("Error retrieving franchisees");
   }
+});
+
+// --------------------Admin Page Upwards --------------------------------------------
+
+
+// --------------------------- Network Page Downward --------------------------
+
+app.get("/Network", function (req, res) {
+  const success = req.query.success;
+  res.render("network",{ success: success });
+});
+
+app.post("/network", async function (req, res) {
+  const pinCode = req.body.pinCode;
+  console.log(pinCode);
+  try {
+    const user = await Franchisee.findOne({
+      pincode: pinCode,
+    });
+    if (!user) {
+      res.redirect("/network?success=invalid");
+    } else {
+      res.redirect("/branch?pincode=" + user.pincode);
+    }
+  } catch (err) {
+    console.error("Error finding pincode or comparing pincode:", err);
+  }
+});
+
+app.get("/branch", async function (req, res) {
+  const pinCode = req.query.pincode;
+  console.log(pinCode);
+  try {
+    const user = await Franchisee.findOne({
+      pincode: pinCode,
+    });
+    if (!user) {
+      res.redirect("/network");
+    } else {
+      res.render("branch", { franchisee: user });
+    }
+  } catch (err) {
+    console.error("Error finding user:", err);
+  }
+});
+
+// --------------------------- Network Page Upward --------------------------
+
+app.get("/Service", function (req, res) {
+  res.render("service");
+});
+
+app.get("/Solution", function (req, res) {
+  res.render("solution");
+});
+
+app.get("/About", function (req, res) {
+  res.render("about");
 });
 
 app.listen(3000, function () {
