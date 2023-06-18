@@ -82,7 +82,9 @@ const shipmentSchema = new mongoose.Schema({
   date: { type: Date },
 
   deliveryStatus :{ type: String, required: true },
-  bookedBy : { type: String, required: true }
+  bookedBy : { type: String, required: true },
+
+  history: [trackingHistorySchema]
 });
 
 const Shipment = mongoose.model("Shipment", shipmentSchema);
@@ -96,6 +98,18 @@ const franchiseeBookingSchema = new mongoose.Schema({
 });
 
 const franchiseeBooking = mongoose.model("franchiseeBooking", franchiseeBookingSchema);
+
+const trackingHistorySchema = new mongoose.Schema({
+  date: { type: Date },
+  trackingNumber: { type: String, required: true, unique: true },  
+  senderName: { type: String, required: true },
+  senderContactNo: { type: String, required: true },
+  ReceiverPincode: { type: String, required: true },
+});
+
+const trackingHistory = mongoose.model("trackingHistory", trackingHistorySchema);
+
+
 
 app.get("/", function (req, res) {
   res.render("home");
