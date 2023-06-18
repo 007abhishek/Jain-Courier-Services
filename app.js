@@ -54,7 +54,8 @@ const franchiseeSchema = new mongoose.Schema({
   city: { type: String, required: true },
   pincode: { type: String, required: true },
   address: { type: String, required: true },
-  // booked: []
+
+  bookings: [franchiseeBookingSchema]
 });
 
 const Franchisee = mongoose.model("Franchisee", franchiseeSchema);
@@ -63,22 +64,38 @@ const Franchisee = mongoose.model("Franchisee", franchiseeSchema);
 // Shipment/Tracking ID Schema
 const shipmentSchema = new mongoose.Schema({
   trackingNumber: { type: String, required: true, unique: true },
+  
   senderName: { type: String, required: true },
   senderCity: { type: String, required: true },
   senderPincode: { type: String, required: true },
   senderAddress: { type: String},
   senderContactNo: { type: String, required: true },
-  ReceiverName: { type: String, required: true },
-  Receivermobile: { type: String, required: true },
-  ReceiverAddress: { type: String, required: true },
   senderEmail: { type: String},
-  Receiveremail: { type: String},
-  date: { type: Date }
+  
+  ReceiverName: { type: String, required: true },
+  ReceiverCity: { type: String, required: true },
+  ReceiverPincode: { type: String, required: true },
+  ReceiverAddress: { type: String, required: true },
+  ReceiverContactNo: { type: String, required: true },
+  ReceiverEmail: { type: String},
+  
+  date: { type: Date },
+
+  deliveryStatus :{ type: String, required: true },
+  bookedBy : { type: String, required: true }
 });
 
 const Shipment = mongoose.model("Shipment", shipmentSchema);
 
+const franchiseeBookingSchema = new mongoose.Schema({
+  date: { type: Date },
+  trackingNumber: { type: String, required: true, unique: true },  
+  senderName: { type: String, required: true },
+  senderContactNo: { type: String, required: true },
+  ReceiverPincode: { type: String, required: true },
+});
 
+const franchiseeBooking = mongoose.model("franchiseeBooking", franchiseeBookingSchema);
 
 app.get("/", function (req, res) {
   res.render("home");
