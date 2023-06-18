@@ -78,51 +78,57 @@
         }
       </style>
       
-      <form action="/bookConsignment" method="post" >
+      <form action="/bookConsignment?id=<%=franchisee._id%>" method="post">
         <div class="form-container">
           <div class="form-column">
             <h2>Sender Details</h2>
             <hr />
-            <label for="SPincode">Sender Pin-Code *</label>
-            <input name="SPincode" type="text" required />
+            <label for="senderName">Sender Name *</label>
+            <input name="senderName" type="text" required />
       
-            <label for="SName">Sender's Name *</label>
-            <input name="SName" type="text" required />
+            <label for="senderCity">Sender's City *</label>
+            <input name="senderCity" type="text" required />
       
-            <label for="SMobile">Sender's Mobile Number *</label>
-            <input name="SMobile" type="text" required />
+            <label for="senderPincode">Sender's Pincode*</label>
+            <input name="senderPincode" type="text" required />
       
-            <label for="SAddress">Sender's Address</label>
-            <input name="SAddress" type="text" />
+            <label for="senderAddress">Sender's Address</label>
+            <input name="senderAddress" type="text" />
       
-            <label for="SEmail">Sender's E-Mail</label>
-            <input name="SEmail" type="email" />
+            <label for="senderContactNo">Sender's Contact Number</label>
+            <input name="senderContactNo" type="text" />
+
+            <label for="senderEmail">Sender's E-Mail</label>
+            <input name="senderEmail" type="email" />
           </div>
       
           <div class="form-column">
             <h2>Receiver Details</h2>
             <hr />
-            <label for="RPincode">Receiver's Pin-Code *</label>
-            <input name="RPincode" type="text" required />
+            <label for="ReceiverName">Receiver Name *</label>
+            <input name="ReceiverName" type="text" required />
       
-            <label for="RName">Receiver's Name *</label>
-            <input name="RName" type="text" required />
+            <label for="ReceiverCity">Receiver's City *</label>
+            <input name="ReceiverCity" type="text" required />
       
-            <label for="RMobile">Receiver's Mobile Number *</label>
-            <input name="RMobile" type="text" required />
+            <label for="ReceiverPincode">Receiver's Pincode*</label>
+            <input name="ReceiverPincode" type="text" required />
       
-            <label for="RAddress">Receiver's Address *</label>
-            <input name="RAddress" type="text" required />
+            <label for="ReceiverAddress">Receiver's Address</label>
+            <input name="ReceiverAddress" type="text" />
       
-            <label for="REmail">Receiver's Email</label>
-            <input name="REmail" type="email" />
+            <label for="ReceiverContactNo">Receiver's Contact Number</label>
+            <input name="ReceiverContactNo" type="text" />
+
+            <label for="ReceiverEmail">Receiver's E-Mail</label>
+            <input name="ReceiverEmail" type="email" />
           </div>
         </div>
       
         <div class="center-button">
             <input
               type="text"
-              name="trakingNumber"
+              name="trackingNumber"
               style="width: 250px; height: 20px;  border: 2px solid black; margin-right:15px ;"
               placeholder="Enter Traking Number"
               maxlength="10"

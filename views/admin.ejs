@@ -103,8 +103,6 @@
     </div>
     <% } %>
 
-
-
     <!-- Add Franchisee Form -->
     <form
       action="addFranchisee"
@@ -112,21 +110,21 @@
       enctype="multipart/form-data"
       name="AddFranchisee"
     >
-      <h3 style="text-align: center;">Add Franchisee</h3>
-      <hr>
+      <h3 style="text-align: center">Add Franchisee</h3>
+      <hr />
       <label for="image">Attach Image of Franchiser</label>
       <input name="image" type="file" />
       <br />
       <br />
       <label for="contactPerson">Enter Contact Person Name</label>
       <input name="contactPerson" type="text" />
-      
+
       <label for="contactNo">Enter Contact Number</label>
       <input name="contactNo" type="text" />
 
       <label for="branchName">Enter Branch Name</label>
       <input name="branchName" type="text" />
-      
+
       <label for="email">Enter Email-id</label>
       <input name="email" type="email" />
 
@@ -147,16 +145,14 @@
 
       <label for="address">Enter Branch Address</label>
       <input name="address" type="text" />
-      
 
       <button type="submit">Add Franchisee</button>
     </form>
 
-    
     <!-- Delete Franchisee Form -->
     <form action="/deleteFranchisee" method="post" name="deleteFranchisee">
-      <h3 style="text-align: center;">Delete Franchisee</h3>
-      <hr>
+      <h3 style="text-align: center">Delete Franchisee</h3>
+      <hr />
       <label for="pincode">Enter Branch Pin-code</label>
       <input name="pincode" type="text" />
       <button type="submit">Delete Franchisee</button>
@@ -166,7 +162,5 @@
     <form action="/viewFranchisees" method="get" name="viewFranchisees">
       <button type="submit">View All Franchisee</button>
     </form>
-
-
   </body>
 </html>

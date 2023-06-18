@@ -8,25 +8,25 @@ const { userInfo } = require("os");
 const app = express();
 
 // For Current Time Zone in booking field
-const moment = require('moment-timezone');
+const moment = require("moment-timezone");
 
 // TO upload photo to mongodb
 const multer = require("multer");
 const { log } = require("console");
 
 const storage = multer.memoryStorage();
-const upload = multer({ 
+const upload = multer({
   storage: storage,
-  dest: 'public/uploads',
+  dest: "public/uploads",
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB
+    fileSize: 10 * 1024 * 1024, // 10MB
   },
-  fileFilter: function(req, file, cb) {
+  fileFilter: function (req, file, cb) {
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-      return cb(new Error('Only image files are allowed!'));
+      return cb(new Error("Only image files are allowed!"));
     }
     cb(null, true);
-  }
+  },
 });
 
 app.use(express.static("public"));
@@ -41,13 +41,39 @@ mongoose.connect("mongodb://127.0.0.1:27017/CourierWebsite", {
   useNewUrlParser: true,
 });
 
+const franchiseeBookingSchema = new mongoose.Schema({
+  date: { type: Date },
+  trackingNumber: { type: String, required: true},
+  senderName: { type: String, required: true },
+  senderContactNo: { type: String, required: true },
+  ReceiverPincode: { type: String, required: true },
+});
+
+const FranchiseeBooking = mongoose.model(
+  "FranchiseeBooking",
+  franchiseeBookingSchema
+);
+
+const trackingHistorySchema = new mongoose.Schema({
+  date: { type: Date },
+  trackingNumber: { type: String, },
+  status: { type: String, required: true },
+  updateBy: { type: String, required: true },
+
+});
+
+const TrackingHistory = mongoose.model(
+  "TrackingHistory",
+  trackingHistorySchema
+);
+
 // Franchisee schema and model
 const franchiseeSchema = new mongoose.Schema({
   profilePhoto: { data: Buffer, contentType: String },
   contactPerson: { type: String, required: true },
   contactNo: { type: String, required: true },
   branchName: { type: String, required: true },
-  email: { type: String, required: true,unique: true },
+  email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   state: { type: String, required: true },
   district: { type: String, required: true },
@@ -55,67 +81,42 @@ const franchiseeSchema = new mongoose.Schema({
   pincode: { type: String, required: true },
   address: { type: String, required: true },
 
-  bookings: [franchiseeBookingSchema]
+  bookings: [franchiseeBookingSchema],
 });
 
 const Franchisee = mongoose.model("Franchisee", franchiseeSchema);
 
-
 // Shipment/Tracking ID Schema
 const shipmentSchema = new mongoose.Schema({
   trackingNumber: { type: String, required: true, unique: true },
-  
+
   senderName: { type: String, required: true },
   senderCity: { type: String, required: true },
   senderPincode: { type: String, required: true },
-  senderAddress: { type: String},
+  senderAddress: { type: String },
   senderContactNo: { type: String, required: true },
-  senderEmail: { type: String},
-  
+  senderEmail: { type: String },
+
   ReceiverName: { type: String, required: true },
   ReceiverCity: { type: String, required: true },
   ReceiverPincode: { type: String, required: true },
   ReceiverAddress: { type: String, required: true },
   ReceiverContactNo: { type: String, required: true },
-  ReceiverEmail: { type: String},
-  
+  ReceiverEmail: { type: String },
+
   date: { type: Date },
 
-  deliveryStatus :{ type: String, required: true },
-  bookedBy : { type: String, required: true },
+  deliveryStatus: { type: String, required: true },
+  bookedBy: { type: String, required: true },
 
-  history: [trackingHistorySchema]
+  history: [trackingHistorySchema],
 });
 
 const Shipment = mongoose.model("Shipment", shipmentSchema);
 
-const franchiseeBookingSchema = new mongoose.Schema({
-  date: { type: Date },
-  trackingNumber: { type: String, required: true, unique: true },  
-  senderName: { type: String, required: true },
-  senderContactNo: { type: String, required: true },
-  ReceiverPincode: { type: String, required: true },
-});
-
-const franchiseeBooking = mongoose.model("franchiseeBooking", franchiseeBookingSchema);
-
-const trackingHistorySchema = new mongoose.Schema({
-  date: { type: Date },
-  trackingNumber: { type: String, required: true, unique: true },  
-  senderName: { type: String, required: true },
-  senderContactNo: { type: String, required: true },
-  ReceiverPincode: { type: String, required: true },
-});
-
-const trackingHistory = mongoose.model("trackingHistory", trackingHistorySchema);
-
-
-
 app.get("/", function (req, res) {
   res.render("home");
 });
-
-
 
 app.get("/login", function (req, res) {
   const success = req.query.success;
@@ -125,7 +126,7 @@ app.get("/login", function (req, res) {
 // Set up the login form submission route
 app.post("/login", async function (req, res) {
   const { email, password } = req.body;
-  console.log(email+password);
+  console.log(email + password);
   try {
     const user = await Franchisee.findOne({
       email: email,
@@ -157,62 +158,93 @@ app.get("/user", async function (req, res) {
   }
 });
 
-
 app.post("/bookConsignment", async function (req, res) {
-  const currentDate = moment().tz('Asia/Kolkata').toDate();
-  const booked = new bookedConsignement({
-    trackingID: req.body.trackingNumber,
-    Spincode: req.body.SPincode,
-    Rpincode: req.body.RPincode,
-    SName: req.body.SName,
-    RName: req.body.RName,
-    Smobile: req.body.SMobile,
-    Rmobile: req.body.RMobile,
-    SAddress: req.body.SAddress,
-    RAddress: req.body.RAddress,
-    Semail: req.body.SEmail,
-    Remail: req.body.REmail,
-    date: currentDate
-  });
+  const currentDate = moment().tz("Asia/Kolkata").toDate();
 
-  try {
-    await booked.save();
-    // redirect to contact page with success message
-    res.redirect("/bookConsignment?success=booked");
-  } catch (err) {
-    res.redirect("/bookConsignment?success=errorinbooking");
-    console.error(err);
-  }
+  // const franchiseeId = req.query.id;
+  // const franchisee = await Franchisee.findById(franchiseeId);
+  // const franchiseePincode = franchisee.pincode;
+
+  const franchiseePincode = "df";
+
+
+
+  const currHistory = new TrackingHistory({
+    date: currentDate,
+    trackingNumber: req.body.trackingNumber,
+    status: "Consignment Booked",
+    updateBy : franchiseePincode
+  });
+  currHistory.save();
+
+  const newBook = new FranchiseeBooking({
+    date:currentDate,
+    trackingNumber: req.body.trackingNumber,
+    senderName:req.body.senderName,
+    senderContactNo: req.body.senderContactNo,
+    ReceiverPincode: req.body.ReceiverPincode
+  })
+  newBook.save();
+
+  // const shipment = new Shipment({
+  //   trackingNumber: req.body.trackingNumber,
+  //   senderName: req.body.senderName,
+  //   senderCity: req.body.senderCity,
+  //   senderPincode: req.body.senderPincode,
+  //   senderAddress: req.body.senderAddress,
+  //   senderContactNo: req.body.senderContactNo,
+  //   senderEmail: req.body.senderEmail,
+
+  //   ReceiverName: req.body.ReceiverName,
+  //   ReceiverCity: req.body.ReceiverCity,
+  //   ReceiverPincode: req.body.ReceiverPincode,
+  //   ReceiverAddress: req.body.ReceiverAddress,
+  //   ReceiverContactNo: req.body.ReceiverContactNo,
+  //   ReceiverEmail: req.body.ReceiverEmail,
+
+  //   date: currentDate,
+  //   bookedBy: franchiseePincode,
+  // });
+  // shipment.history.push(currHistory);
+  // franchisee.bookings.push(newBook);
+
+  // try {
+  //   await shipment.save();
+  //   // redirect to contact page with success message
+  //   res.redirect("/bookConsignment?success=booked");
+  // } catch (err) {
+  //   res.redirect("/bookConsignment?success=errorinbooking");
+  //   console.error(err);
+  // }
 });
 
 app.get("/bookConsignment", function (req, res) {
   const success = req.query.success;
-  res.render("booking",{ success: success });
+  res.render("booking", { success: success,franchisee: Franchisee });
 });
 
 app.get("/myBooking", async function (req, res) {
   console.log(req.query.id);
-  res.render("mybooking.ejs",{bookings:Franchisee});
+  res.render("mybooking.ejs", { bookings: Franchisee });
 });
 
-
 app.post("/Track", async function (req, res) {
-    const trackingNumber = req.body.trackingNumber;
+  const trackingNumber = req.body.trackingNumber;
 
-    console.log(trackingNumber);
-    try {
-      const found = await bookedConsignement.findOne({
-      trackingID: trackingNumber
+  console.log(trackingNumber);
+  try {
+    const found = await bookedConsignement.findOne({
+      trackingID: trackingNumber,
     });
-      if (!found) {
-        res.redirect("/Track?success=invalid");
-      } else {
-        res.redirect("/Tracking?id=" + found._id);
-      }
-    } catch (err) {
-      console.error("Error finding tracking number in database:", err);
-      // return res.status(500).send("Error finding user or comparing password");
+    if (!found) {
+      res.redirect("/Track?success=invalid");
+    } else {
+      res.redirect("/Tracking?id=" + found._id);
     }
+  } catch (err) {
+    console.error("Error finding tracking number in database:", err);
+    // return res.status(500).send("Error finding user or comparing password");
+  }
 });
 
 app.get("/Tracking", async function (req, res) {
@@ -232,8 +264,15 @@ app.get("/Tracking", async function (req, res) {
 
 app.get("/Track", function (req, res) {
   const success = req.query.success;
-  res.render("track",{ success: success });
+  res.render("track", { success: success });
 });
+
+
+
+
+
+
+
 
 
 
@@ -262,11 +301,10 @@ app.post("/deleteFranchisee", function (req, res) {
     });
 });
 
-app.post("/addFranchisee", upload.single('image'), async function (req, res) {
-
+app.post("/addFranchisee", upload.single("image"), async function (req, res) {
   console.log(req.file);
   if (!req.file) {
-    return res.status(400).send('No file uploaded');
+    return res.status(400).send("No file uploaded");
   }
   const franchisee = new Franchisee({
     profilePhoto: {
@@ -282,7 +320,7 @@ app.post("/addFranchisee", upload.single('image'), async function (req, res) {
     district: req.body.district,
     city: req.body.city,
     pincode: req.body.pincode,
-    address: req.body.address
+    address: req.body.address,
   });
 
   try {
@@ -307,12 +345,11 @@ app.get("/viewFranchisees", async function (req, res) {
 
 // --------------------Admin Page Upwards --------------------------------------------
 
-
 // --------------------------- Network Page Downward --------------------------
 
 app.get("/Network", function (req, res) {
   const success = req.query.success;
-  res.render("network",{ success: success });
+  res.render("network", { success: success });
 });
 
 app.post("/network", async function (req, res) {
