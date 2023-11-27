@@ -43,7 +43,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/CourierWebsite", {
 
 const franchiseeBookingSchema = new mongoose.Schema({
   date: { type: Date },
-  trackingNumber: { type: String, required: true},
+  trackingNumber: { type: String, required: true },
   senderName: { type: String, required: true },
   senderContactNo: { type: String, required: true },
   ReceiverPincode: { type: String, required: true },
@@ -56,10 +56,9 @@ const FranchiseeBooking = mongoose.model(
 
 const trackingHistorySchema = new mongoose.Schema({
   date: { type: Date },
-  trackingNumber: { type: String, },
+  trackingNumber: { type: String },
   status: { type: String, required: true },
   updateBy: { type: String, required: true },
-
 });
 
 const TrackingHistory = mongoose.model(
@@ -85,6 +84,16 @@ const franchiseeSchema = new mongoose.Schema({
 });
 
 const Franchisee = mongoose.model("Franchisee", franchiseeSchema);
+
+// Feedback Form Schema
+const feedbackSchema = new mongoose.Schema({
+  contactPerson: { type: String, required: true },
+  contactNo: { type: String, required: true },
+  email: { type: String, required: true },
+  query: { type: String, required: true },
+});
+
+const Feedback = mongoose.model("Feedback", feedbackSchema);
 
 // Shipment/Tracking ID Schema
 const shipmentSchema = new mongoose.Schema({
@@ -165,85 +174,96 @@ app.post("/bookConsignment", async function (req, res) {
   // const franchisee = await Franchisee.findById(franchiseeId);
   // const franchiseePincode = franchisee.pincode;
 
-  const franchiseePincode = "df";
-
-
+  const franchiseePincode = req.body.senderPincode;
+  console.log(req.body.senderPincode);
 
   const currHistory = new TrackingHistory({
     date: currentDate,
     trackingNumber: req.body.trackingNumber,
     status: "Consignment Booked",
-    updateBy : franchiseePincode
+    updateBy: franchiseePincode,
   });
   currHistory.save();
 
   const newBook = new FranchiseeBooking({
-    date:currentDate,
+    date: currentDate,
     trackingNumber: req.body.trackingNumber,
-    senderName:req.body.senderName,
+    senderName: req.body.senderName,
     senderContactNo: req.body.senderContactNo,
-    ReceiverPincode: req.body.ReceiverPincode
-  })
+    ReceiverPincode: req.body.ReceiverPincode,
+  });
   newBook.save();
 
-  // const shipment = new Shipment({
-  //   trackingNumber: req.body.trackingNumber,
-  //   senderName: req.body.senderName,
-  //   senderCity: req.body.senderCity,
-  //   senderPincode: req.body.senderPincode,
-  //   senderAddress: req.body.senderAddress,
-  //   senderContactNo: req.body.senderContactNo,
-  //   senderEmail: req.body.senderEmail,
+  const shipment = new Shipment({
+    trackingNumber: req.body.trackingNumber,
 
-  //   ReceiverName: req.body.ReceiverName,
-  //   ReceiverCity: req.body.ReceiverCity,
-  //   ReceiverPincode: req.body.ReceiverPincode,
-  //   ReceiverAddress: req.body.ReceiverAddress,
-  //   ReceiverContactNo: req.body.ReceiverContactNo,
-  //   ReceiverEmail: req.body.ReceiverEmail,
+    senderName: req.body.senderName,
+    senderCity: req.body.senderCity,
+    senderPincode: req.body.senderPincode,
+    senderAddress: req.body.senderAddress,
+    senderContactNo: req.body.senderContactNo,
+    senderEmail: req.body.senderEmail,
 
-  //   date: currentDate,
-  //   bookedBy: franchiseePincode,
-  // });
-  // shipment.history.push(currHistory);
-  // franchisee.bookings.push(newBook);
+    ReceiverName: req.body.ReceiverName,
+    ReceiverCity: req.body.ReceiverCity,
+    ReceiverPincode: req.body.ReceiverPincode,
+    ReceiverAddress: req.body.ReceiverAddress,
+    ReceiverContactNo: req.body.ReceiverContactNo,
+    ReceiverEmail: req.body.ReceiverEmail,
 
-  // try {
-  //   await shipment.save();
-  //   // redirect to contact page with success message
-  //   res.redirect("/bookConsignment?success=booked");
-  // } catch (err) {
-  //   res.redirect("/bookConsignment?success=errorinbooking");
-  //   console.error(err);
-  // }
+    date: currentDate,
+    deliveryStatus: "Consignment Booked",
+    bookedBy: franchiseePincode,
+  });
+  shipment.history.push(currHistory);
+  // Franchisee.bookings.push(newBook);
+
+  try {
+    await shipment.save();
+    // redirect to contact page with success message
+    res.redirect("/bookConsignment?success=booked");
+  } catch (err) {
+    res.redirect("/bookConsignment?success=errorinbooking");
+    console.error(err);
+  }
 });
 
 app.get("/bookConsignment", function (req, res) {
   const success = req.query.success;
-  res.render("booking", { success: success,franchisee: Franchisee });
+  res.render("booking", { success: success, franchisee: Franchisee });
 });
 
 app.get("/myBooking", async function (req, res) {
-  console.log(req.query.id);
-  res.render("mybooking.ejs", { bookings: Franchisee });
+  try {
+    const senderPinCode = req.query.id;
+    console.log("HIHIHHIHIHIHI");
+    // Use Mongoose to find shipments based on the sender's pin code
+    const shipments = await Shipment.find({ senderPincode: senderPinCode });
+    console.log("fetching");
+    console.log(shipments);
+    // console.log(shipments[6].history);
+    res.render("mybooking.ejs", { bookings: shipments });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
-app.post("/Track", async function (req, res) {
+app.post("/TrackingOnly", async function (req, res) {
   const trackingNumber = req.body.trackingNumber;
-
   console.log(trackingNumber);
   try {
-    const found = await bookedConsignement.findOne({
-      trackingID: trackingNumber,
-    });
-    if (!found) {
-      res.redirect("/Track?success=invalid");
-    } else {
-      res.redirect("/Tracking?id=" + found._id);
+    const shipment = await Shipment.findOne({ trackingNumber: trackingNumber });
+
+    if (!shipment) {
+      // If no shipment is found, handle this case
+      return res.status(404).send("Shipment not found");
     }
+    console.log(shipment);
+    res.render("trackingOnly", { shipment: shipment });
   } catch (err) {
-    console.error("Error finding tracking number in database:", err);
-    // return res.status(500).send("Error finding user or comparing password");
+    console.error(err);
+    return res.status(500).send("Error retrieving shipment");
   }
 });
 
@@ -266,15 +286,6 @@ app.get("/Track", function (req, res) {
   const success = req.query.success;
   res.render("track", { success: success });
 });
-
-
-
-
-
-
-
-
-
 
 // --------------------Admin Page Downside --------------------------------------------
 
@@ -345,6 +356,29 @@ app.get("/viewFranchisees", async function (req, res) {
 
 // --------------------Admin Page Upwards --------------------------------------------
 
+// ----------------- FeedBack Form --------------------------
+
+app.post("/feedback", async function (req, res) {
+  const feedback = new Feedback({
+    contactPerson: req.body.contactPerson,
+    contactNo: req.body.contactNo,
+    email: req.body.email,
+    query: req.body.query,
+  });
+  console.log(req.body.contactPerson);
+  console.log("HHIHIHIHIHIHIHI");
+  try {
+    await feedback.save();
+    // redirect to About page with success message
+    res.redirect("/About?success=submit");
+  } catch (err) {
+    res.redirect("/About?success=errorinadding");
+    console.error(err);
+  }
+});
+
+// ------------- FeedBack Form Upwards --------------------
+
 // --------------------------- Network Page Downward --------------------------
 
 app.get("/Network", function (req, res) {
@@ -386,6 +420,69 @@ app.get("/branch", async function (req, res) {
   }
 });
 
+// --------------------------- Shipment Update --------------------------
+
+app.get("/updateShipment", function (req, res) {
+  const pincode = req.query.pincode;
+  res.render("updateShipment", { pincode: pincode });
+});
+
+// --------------------------- Shipment History --------------------------
+
+app.post("/shipmentHistory", async function (req, res) {
+  const trackingNumber = req.body.trackingNumber;
+  const pincode = req.query.pincode;
+  console.log(pincode);
+  console.log(trackingNumber);
+  try {
+    const shipment = await Shipment.findOne({ trackingNumber: trackingNumber });
+    console.log(shipment);
+    res.render("shipmentHistory", { shipment: shipment, pincode: pincode });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send("Error retrieving franchisees");
+  }
+});
+
+app.post("/updateOnly", async function (req, res) {
+  const trackingNumber = req.body.trackingNumber;
+  const pincode = req.body.pincode;
+  const updateStatus = req.body.updateStatus;
+  console.log(updateStatus);
+  console.log(pincode);
+  console.log(trackingNumber);
+
+  try {
+    const updatedShipment = await Shipment.findOneAndUpdate(
+      { trackingNumber: trackingNumber },
+      {
+        $push: {
+          history: {
+            date: new Date(),
+            trackingNumber: trackingNumber,
+            status: updateStatus,
+            updateBy: pincode,
+          },
+        },
+        $set: {
+          deliveryStatus: updateStatus,
+        },
+      },
+      { new: true, upsert: true }
+    );
+
+    console.log(updatedShipment);
+    // updatedShipment contains the updated document
+    res.render("shipmentHistory", { shipment: updatedShipment, pincode: pincode });
+  } catch (err) {
+    console.error(err);
+    // Handle the error
+    res.status(500).send("Error updating shipment");
+  }
+});
+
+
+
 // --------------------------- Network Page Upward --------------------------
 
 app.get("/Service", function (req, res) {
@@ -396,8 +493,9 @@ app.get("/Solution", function (req, res) {
   res.render("solution");
 });
 
-app.get("/About", function (req, res) {
-  res.render("about");
+app.get("/about", (req, res) => {
+  const success = req.query.success;
+  res.render("about", { success });
 });
 
 app.listen(3000, function () {

@@ -22,7 +22,7 @@
         "
         class="alert alert-success"
       >
-        Traking Number Not Found!!
+        Tracking Number Not Found!!
       </div>
       <% } %> 
 
@@ -30,11 +30,8 @@
     <h2 style="margin-left: 1rem">Track Your Order</h2>
     <div class="tracking-container" style="margin-left: 0">
       <div class="track-form-wrapper">
-        
-
-
-
-        <form id="home-track-form" method="post" action="/Track">
+      
+        <form id="home-track-form" method="post" action="/TrackingOnly">
           <div class="input-field-wrapper" id="mobileBx">
             <input
               type="text"
@@ -42,8 +39,8 @@
               pattern="\d{10}"
               style="height: 2.25rem; border: 2px solid black"
               class="track-input-field tracktext btn"
-              name="trakingNumber"
-              placeholder="Enter Traking Number"
+              name="trackingNumber"
+              placeholder="Enter Tracking Number"
             />
             <button
               type="submit"

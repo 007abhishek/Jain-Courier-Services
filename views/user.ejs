@@ -319,7 +319,7 @@
         <div class="right-section">
           <a
             class="btn btn-secondary"
-            href="bookConsignment?id=<%=franchisee._id%>"
+            href="bookConsignment?id=<%=franchisee.pincode%>"
             role="button"
             id="dropdownMenuLink"
             aria-expanded="false"
@@ -328,12 +328,21 @@
           </a>
           <a
             class="btn btn-secondary"
-            href="myBooking?id=<%=franchisee._id%>"
+            href="myBooking?id=<%=franchisee.pincode%>"
             role="button"
             id="dropdownMenuLink"
             aria-expanded="false"
           >
             My Bookings
+          </a>
+          <a
+            class="btn btn-secondary"
+            href="updateShipment?pincode=<%=franchisee.pincode%>"
+            role="button"
+            id="dropdownMenuLink"
+            aria-expanded="false"
+          >
+            Update
           </a>
         </div>
       </div>
